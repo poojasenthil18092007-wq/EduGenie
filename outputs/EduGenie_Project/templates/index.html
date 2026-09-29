@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EduGenie | Your AI Learning Assistant</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <p class="eyebrow">GEMINI-POWERED STUDY SUPPORT</p>
+      <h1>Edu<span>Genie</span></h1>
+      <p class="intro">Learn clearly. Revise confidently. Progress with a plan.</p>
+    </header>
+
+    <section class="grid">
+      <article class="card"><h2>Explain a topic</h2><input id="explain-topic" placeholder="e.g., Neural networks"><select id="level"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select><button onclick="run('explain')">Explain</button></article>
+      <article class="card"><h2>Ask EduGenie</h2><textarea id="question" placeholder="Ask any study question..."></textarea><button onclick="run('ask')">Get answer</button></article>
+      <article class="card"><h2>Summarize notes</h2><textarea id="content" placeholder="Paste your study material here..."></textarea><button onclick="run('summarize')">Create summary</button></article>
+      <article class="card"><h2>Make a quiz</h2><input id="quiz-topic" placeholder="e.g., Data structures"><button onclick="run('quiz')">Generate quiz</button></article>
+      <article class="card full"><h2>Build a learning path</h2><div class="row"><input id="subject" placeholder="Subject"><input id="goal" placeholder="Your goal, e.g., pass semester exam"></div><button onclick="run('path')">Create my plan</button></article>
+    </section>
+    <section class="result"><div id="status">Your learning results will appear here.</div><article id="output"></article></section>
+  </main>
+  <script>
+    const fields = { explain: () => ({topic: value('explain-topic'), level: value('level')}), ask: () => ({question: value('question')}), summarize: () => ({content: value('content')}), quiz: () => ({topic: value('quiz-topic')}), path: () => ({subject: value('subject'), goal: value('goal')}) };
+    const value = id => document.getElementById(id).value;
+    async function run(feature) {
+      const status = document.getElementById('status'), output = document.getElementById('output');
+      status.textContent = 'EduGenie is thinking...'; output.textContent = '';
+      try { const response = await fetch(`/api/${feature}`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(fields[feature]())}); const data = await response.json(); if (!response.ok) throw new Error(data.error); status.textContent = 'Here is your result:'; output.textContent = data.result; }
+      catch (error) { status.textContent = 'Please try again.'; output.textContent = error.message; }
+    }
+  </script>
+</body>
+</html>
